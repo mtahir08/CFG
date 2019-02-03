@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+    <title>CFG</title>
+</head>
+
+<body>
+    <script type="text/babel">
+
+const rules = {
+    "S": [["NP", "VP"]],
+    "NP": [["Det", "N"]],
+    "PP": [["P", "NP"]],
+    // "VP": [["NP"], ["PP"], ['saw', 'walked', 'slept']],
+    // "VP": [['slept', 'saw'], ["NP"], [ 'walked'], ["PP"]],
+    "VP": [['slept'], ['saw',["NP"]],['walked', ["PP"]] ],
+    // "VP": [['slept'], ['saw'],["NP"], ['walked'], ["PP" ]],
+    "Det": [['the'],['a']],
+    "N": [['man'], ['park'], ['dog']],
+    "P": [['in'], ['with']],
+}
+
+class CFG {
+
+    constructor(){
+        this.start = "S";
+        this.expansion = [];
+        this.data = [];
+        
+    }
+
+    set expansionData(expansion){
+        this.expansion = expansion
+    }
+    get expansionData(){
+        return this.expansion;
+    }
+    set final(data){
+        this.data = data
+    }
+    get final(){
+        return this.data;
+    }
+
+    expandMore =(pickItem) => {
+        pickItem.forEach((item)=>{
+            this.expand(item);
+        })
+    }
+
+    expand = (value) => {
+        const item = rules[value];
+        if (item) {
+            const index = Math.floor(Math.random() * item.length);
+            const pickItem  = item[index];
+            this.expandMore(pickItem);
+        } else {
+            const data = this.expansionData
+            data.push(value);
+            this.expansionData = data;
+        }
+        return this.expansion.join(' ');
+    }
+
+    display = () => {
+        const data = this.data;
+        let element = document.getElementById('cfg');
+        let html = '<ul style="display:inline">'
+        data.forEach((item)=>{
+                html += `<li>${item}</li>`
+        })
+        html +='</ul>';
+        element.innerHTML = html;
+    }
+
+    setup = () => {
+        this.expansionData = []
+        const expansionResult = this.data;
+        const result =  this.expand(this.start, this.expension);
+        expansionResult.push(result)
+        this.data = expansionResult;
+    }
+
+    interval = () => {
+        const count = document.getElementById('count').value;
+        if(Number(count)){
+           for(let i= 0; i< count; i++){
+                this.setup();
+           }
+           this.display();
+        }
+    }
+
+}
+
+let cfg = new CFG();
+
+    </script>
+    <input type="text" id='count' value='5' />
+    <button onclick="cfg.interval()">Generate CFG</button>
+    <div id="cfg"></div>
+</body>
+
+</html>
